@@ -1,5 +1,4 @@
 from sympy import *
-import re
 
 #Solves linear equations
 #in its current form, isolates whatever has an 'x' in it. Can't collect terms or divide.
@@ -66,13 +65,7 @@ class Equation:
         #check if sides should be flipped if subject is on rhs
         for block in self.rhs.blocks:
             if self.subject in block:
-                self.flip_sides()
-
-        #checks if the subject block is the only block on LHS
-        self.subject_is_isolated = self.is_subject_isolated()
-
-        #checks if subject is the last block on LHS
-        self.subject_is_last = self.is_subject_last()   
+                self.flip_sides() 
 
     def update(self):
         # updates the written form of equation (for use with SymPy)
