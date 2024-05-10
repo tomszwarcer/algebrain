@@ -1,28 +1,59 @@
 from sympy import *
+import re
 
 #Solves linear equations
 #in its current form, isolates whatever has an 'x' in it. Can't collect terms or divide.
-#also can't deal with negative coefficients
+#Can deal with negative coefficients!
 #TODO: add collecting like terms functionality
 #TODO: implement division
-#TODO: implement support for negative coeffs
 #TODO: give some indication when original equation has been flipped
+#TODO: implement sanitisation. Currently only works with spaces around all signs.
 
 class Side:
     def __init__(self, content):
         #define side content for later use in sympify
         self.content = content
 
-        #separate side into blocks:
-        self.blocks = content.split(" + ")
+        #separate side into blocks: this list includes signs only at instantiation of Side.
+        self.blocks = self.content.split(" ")
 
-    def update_content(self):
+        #create signs list: 
+        self.signs = []
+
+        #special behaviour for 1st element:
+        #if no sign on 1st elememt default to plus
+        if self.blocks[0] != "-" and self.blocks[0] != "+":
+            self.blocks.insert(0, "+")
+
+        #assign signs and remove them from block
+        self.signs = self.blocks[0::2]
+        del self.blocks[0::2]
+
+    def update(self):
+        #update content from blocks
         self.content = ""
-        for item in self.blocks:
-            if item == self.blocks[-1]:
-                self.content = self.content + item
+        #construct content from blocks using signs:
+        for index in range(len(self.blocks)):
+            if self.signs[index] == "+":    
+                if index == len(self.blocks) - 1:
+                    self.content = self.content + self.blocks[index]
+                else:
+                    self.content = self.content + self.blocks[index] + " + "
             else:
-                self.content = self.content + item + " + "
+                if index == len(self.blocks) - 1:
+                    self.content = self.content + "- " + self.blocks[index]
+                else:
+                    self.content = self.content + "- " + self.blocks[index] + " + "
+        
+        #simplify any '+ -':
+        if "+ - " in self.content:
+            split_content = self.content.split(" + - ")
+            self.content = ""
+            for item in split_content:
+                if item == split_content[-1]:
+                    self.content = self.content + item
+                else:
+                    self.content = self.content + item + " - "
 
 class Equation:
     def __init__(self, content, subject):
@@ -43,10 +74,7 @@ class Equation:
         #checks if subject is the last block on LHS
         self.subject_is_last = self.is_subject_last()   
 
-        #gets subject index
-        self.subject_index = self.find_subject_block(self.subject)
-
-    def update_content(self):
+    def update(self):
         # updates the written form of equation (for use with SymPy)
         self.content = self.lhs.content + " = " + self.rhs.content
 
@@ -57,7 +85,7 @@ class Equation:
         self.rhs = temp
 
         #update equation content:
-        self.update_content()
+        self.update()
 
     def is_subject_isolated(self):
         #checks if the subject block is the only block on LHS
@@ -66,13 +94,6 @@ class Equation:
             return True
         else:
             return False
-        
-    def find_subject_block(self, subject):
-        #return index of block containing the subject 
-        #assuming subject has already been moved to LHS
-        for block in self.lhs.blocks:
-            if subject in block:
-                return self.lhs.blocks.index(block)
 
     def is_subject_last(self):
         #checks if subject is the last block
@@ -84,7 +105,7 @@ class Equation:
             return False
 
 def main():
-    equation = Equation("3*x + 5*z + 23*y = 2 + p", "p") #<----- Modify equation!
+    equation = Equation("- 2*y + 1 = x", "y") #<----- Modify equation!
 
     #collect like terms:
     #TODO: code for this. for now assume they have been collected.
@@ -98,17 +119,25 @@ def main():
         #if subject is last, isolate everything except 1st element:
         if equation.is_subject_last() == True:
             subject_list = equation.lhs.blocks[1:]
+            subject_signs = equation.lhs.signs[1:]
         #if not, isolate everything except last element
         else:
             subject_list = equation.lhs.blocks[:-1]
-        
-        #concatenate everything in the isolated list:
+            subject_signs = equation.lhs.signs[:-1]
+        #concatenate everything in the isolated list to form subject:
+        #+ - will get simplified down
         subject_temp = ""
-        for item in subject_list:
-            if item == subject_list[-1]:
-                subject_temp = subject_temp + item
+        for index in range(len(subject_list)):
+            if subject_signs[index] == "+":
+                if index == len(subject_list) - 1:
+                    subject_temp = subject_temp + subject_list[index]
+                else:
+                    subject_temp = subject_temp + subject_list[index] + " + "
             else:
-                subject_temp = subject_temp + item + " + "
+                if index == len(subject_list) - 1:
+                    subject_temp = subject_temp + "-" + subject_list[index]
+                else:
+                    subject_temp = subject_temp + "-" + subject_list[index] + " + "
 
         #use sympify to find what needs to be moved from LHS to RHS:
         symbolic_subject = sympify(subject_temp)
@@ -120,16 +149,27 @@ def main():
 
         #this is what should be added to RHS:
         block_to_move_rhs = str(symbolic_block_to_move)
+        if block_to_move_rhs[0] == "-":
+            block_to_move_rhs = block_to_move_rhs[1:]
+            equation.rhs.signs.append("-")
+        else:
+            equation.rhs.signs.append("+")
         equation.rhs.blocks.append(block_to_move_rhs)
+        
 
         #this is what should be removed from the LHS:
         block_to_move_lhs = str(sympify("-1")*symbolic_block_to_move)
+
+        #remove corresponding sign which may be added
+        if block_to_move_lhs[0] == "-":
+            block_to_move_lhs = block_to_move_lhs[1:]
+        del equation.lhs.signs[equation.lhs.blocks.index(block_to_move_lhs)]
         equation.lhs.blocks.remove(block_to_move_lhs)
 
         #update content for printing
-        equation.lhs.update_content()
-        equation.rhs.update_content()
-        equation.update_content()
+        equation.lhs.update()
+        equation.rhs.update()
+        equation.update()
         print("STEP:",equation.content)
 
     print("'solved' equation: ", equation.content)
