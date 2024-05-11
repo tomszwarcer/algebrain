@@ -32,8 +32,11 @@ class Side():
         for index in range(len(self.blocks)):
             content_temp.append(self.blocks[index].sign)
             content_temp.append(self.blocks[index].content)
+        
+        #case of an empty side (all blocks were removed):
         if len(content_temp) == 0:
             self.content = "0"
+        #remove any +'s from the start:
         else:
             if content_temp[0] == "+":
                 del content_temp[0]

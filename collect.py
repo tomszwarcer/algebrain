@@ -1,8 +1,8 @@
-#given an equation, collect like terms
+#given an equation, collect like terms on the LHS
+#only collect a single type of term each time it is run (so it can report stepwise to manim)
 #deal with numbers or algebra
 #should be no brackets in this step so no need to implement bracket support.
 #TODO: add ability to report which terms were combined and the result
-
 
 import equation
 import block
@@ -14,12 +14,13 @@ def collect(equation):
     alg_parts = []
     #create list of algebra parts that repeat (INEFFICIENT)
     common_algs = []
-    #if common_algs contains "" then there are numbers to collect.
+    #if common_algs contains "" then there are numbers to collect as well as algebra.
     for i in equation.all_blocks:
         if i.alg in alg_parts:
             common_algs.append(i.alg)
         alg_parts.append(i.alg)
 
+    #if no blocks share the same algebraic part:
     if common_algs == []:
         print("Nothing to collect")
         return equation
@@ -28,6 +29,7 @@ def collect(equation):
         to_combine_rhs = []
         to_remove_lhs = []
         to_remove_rhs = []
+
         #will only deal with the 1st entry in common_algs in each iteration
         #the program needs to be run multiple times.
         for i in range(len(equation.lhs.blocks)):
@@ -45,7 +47,6 @@ def collect(equation):
             if i in equation.lhs.blocks:
                 equation.lhs.blocks.remove(i)
 
-        
         for i in to_remove_rhs:
             if i in equation.rhs.blocks:
                 equation.rhs.blocks.remove(i)
