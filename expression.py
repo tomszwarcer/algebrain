@@ -1,8 +1,8 @@
 import block
 
-class Side():
+class Expression():
     def __init__(self, content):
-        #define side content for later use in sympify
+        #define expression content for later use in sympify
         self.content = content
 
         #initialise other attributes
@@ -33,7 +33,7 @@ class Side():
             content_temp.append(self.blocks[index].sign)
             content_temp.append(self.blocks[index].content)
         
-        #case of an empty side (all blocks were removed):
+        #case of an empty expression (all blocks were removed):
         if len(content_temp) == 0:
             self.content = "0"
         #remove any +'s from the start:

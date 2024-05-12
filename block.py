@@ -1,4 +1,5 @@
 #TODO: add update() to update from content
+#TODO: make blocks compatible with brackets
 
 class Block():
     def __init__(self, sign, content):
@@ -7,6 +8,8 @@ class Block():
         self.coeff = ""
         self.alg = ""
         self.get_coeff()
+        self.bracketed = False
+        self.is_bracketed()
 
     def get_coeff(self):
         #case of single factor:
@@ -46,4 +49,11 @@ class Block():
         #make str:    
         result = " ".join(result_list)
         return result
+    
+    def is_bracketed(self):
+        for char in self.content:
+            if char == "(":
+                self.bracketed = True
+                break
+
 
