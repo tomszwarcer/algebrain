@@ -10,15 +10,16 @@
 #For some reason it doesn't work if we use "O" or "Q" instead of "i" as the nest sub
 
 import sympy as sp
+import expression
 
 def expand(input_exp):
     de_nested_content, nest = de_nest(input_exp)
     if nest == "":
         expanded_nested = sp.expand(de_nested_content)
-        return str(expanded_nested)
+        return expression.Expression(str(expanded_nested))
     else: 
         expanded_nested = sp.expand(de_nested_content) 
-        return re_nest(str(expanded_nested), nest)
+        return expression.Expression(re_nest(str(expanded_nested), nest))
     
 def de_nest(exp):
     #returns de-nested content

@@ -2,7 +2,7 @@
 #only collect a single type of term each time it is run (so it can report stepwise to manim)
 #deal with numbers or algebra
 #should be no brackets in this step so no need to implement bracket support.
-#TODO: add ability to report which terms were combined and the result
+
 
 import equation
 import block
@@ -22,8 +22,7 @@ def collect(equation):
 
     #if no blocks share the same algebraic part:
     if common_algs == []:
-        print("Nothing to collect")
-        return equation
+        return equation, None, None
     else:
         to_combine_lhs = []
         to_combine_rhs = []
@@ -73,7 +72,7 @@ def collect(equation):
         equation.rhs.update()
         equation.update()
 
-        return equation
+        return equation, common_equation_lhs, common_equation_rhs
 
 
             

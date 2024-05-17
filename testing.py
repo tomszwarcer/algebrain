@@ -1,7 +1,5 @@
-import expression
-import multiply
+import equation
+import collect
 
-b1 = expression.Expression("3 + x")
-b2 = expression.Expression("2 + y")
-
-print(multiply.multiply(b1,b2).content)
+eq = equation.Equation("6*x + 15 = 12*y + 8*x")
+print(collect.collect(eq)[0].content)
