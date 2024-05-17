@@ -10,6 +10,10 @@ class Expression():
         self.create_blocks_signs()
 
     def create_blocks_signs(self):
+        #add space after 1st minus:
+        if self.content[0] == "-" and self.content[1] != " ":
+            self.content = "- " + self.content[1:]
+
         #create combined blocks and signs: (signs removed later)
         blocks_temp = self.content.split(" ")
 

@@ -3,6 +3,7 @@
 #deal with numbers or algebra
 #should be no brackets in this step so no need to implement bracket support.
 
+#TODO: Make it collect on the positive side instead of always on LHS
 
 import equation
 import block

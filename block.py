@@ -56,4 +56,9 @@ class Block():
                 self.bracketed = True
                 break
 
+    def flip_sign(self):
+        if self.sign == "-":
+            self.sign = "+"
+        else:
+            self.sign = "-"
 
