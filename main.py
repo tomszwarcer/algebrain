@@ -6,6 +6,7 @@ import expand
 import copy
 import flip
 import move
+import divide
 
 def detect_expand(exp):
     for char in exp.content:
@@ -25,6 +26,8 @@ def next_step(eq,subject):
         return "move"
     elif detect_flip(eq,subject):
         return "flip"
+    elif detect_divide(eq,subject):
+        return "divide"
     else:
         return "done"
     
@@ -53,6 +56,12 @@ def detect_move(eq,subject):
     else:
         return False
     
+def detect_divide(eq,subject):
+    subj_block, subj_side = move.get_subj_block(eq, subject)
+    if move.is_subject_isolated(eq,subj_side) == True and subj_block.content != subject:
+        return True
+    else:
+        return False
 
 eq = equation.Equation("3*(2*y + 5) - x = 4*(3*x + 2)")
 subject = "x"
@@ -91,7 +100,13 @@ while next_step(eq,subject) != "done":
         print("flipped " + eq.content + " to " + eq_new.content)
         eq = eq_new
         print("current: " + eq.content+ "\n")
+    elif next_step(eq, subject) == "divide":
+        eq_new = copy.deepcopy(eq)
+        eq_new, to_multiply = divide.divide(eq_new,subject)
+        print("multiplied both sides by " + to_multiply + " to give " + eq_new.content)
+        eq = eq_new
+        print("current: " + eq.content+ "\n")
 
-print("final: " + eq_new.content)
+print("final: " + eq.content)
 
 
